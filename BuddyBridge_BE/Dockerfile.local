@@ -1,0 +1,17 @@
+FROM gradle:8.7-jdk21-alpine AS builder
+
+WORKDIR /usr/src/app
+
+COPY build.gradle settings.gradle ./
+COPY gradle ./gradle
+COPY src ./src
+
+RUN gradle build
+
+FROM openjdk:21-jdk
+
+WORKDIR /usr/src/app
+
+COPY --from=builder /usr/src/app/build/libs/*.jar /usr/src/app/app.jar
+
+ENTRYPOINT ["java", "-jar", "/usr/src/app/app.jar"]
